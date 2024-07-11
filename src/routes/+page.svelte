@@ -42,6 +42,17 @@
 		modalRef.close();
 	}
 
+	function confirmDelete(radio: Radio) {
+		if (confirm('Sure?')) {
+			radioStore.remove(radio);
+		}
+	}
+
+	function closeModal() {
+		modalRef.close();
+		form = { ...initialForm };
+	}
+
 	function play(radio: Radio) {
 		error = '';
 		playing = radio;
@@ -82,7 +93,7 @@
 	{#each radioStore.radios as radio}
 		<li>
 			<h4>
-				<button type="button" onclick={() => radioStore.remove(radio)}>❌</button>
+				<button type="button" onclick={() => confirmDelete(radio)}>❌</button>
 				<button type="button" onclick={() => edit(radio)}>✏️</button>
 				&nbsp;
 				{radio.name}
@@ -109,7 +120,7 @@
 			</div>
 		</div>
 		<br />
-		<button type="button" onclick={() => modalRef.close()}>Cancel</button>
+		<button type="button" onclick={closeModal}>Cancel</button>
 		{#if !editId}
 			<button type="submit">Add</button>
 		{:else}
