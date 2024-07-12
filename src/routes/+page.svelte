@@ -43,7 +43,7 @@
 	}
 
 	function confirmDelete(radio: Radio) {
-		if (confirm('Sure?')) {
+		if (confirm('Delete? Really? Sure?')) {
 			radioStore.remove(radio);
 		}
 	}
@@ -57,6 +57,11 @@
 	function play(radio: Radio) {
 		error = '';
 		playing = radio;
+	}
+
+	function shuffle() {
+		const index = Math.floor(Math.random() * radioStore.radios.length);
+		play(radioStore.radios[index]);
 	}
 
 	function handleAudio(node: HTMLAudioElement, url: string) {
@@ -89,6 +94,11 @@
 		<button onclick={() => modalRef.showModal()}>Add Station</button>
 		{#if radioStore.radios.length > 0}
 			<button onclick={() => radioStore.xport()}>Export</button>
+			<button onclick={() => shuffle()}>🔀</button>
+		{/if}
+
+		{#if !radioStore.radios.length}
+			<button onclick={() => radioStore.mport()}>Import</button>
 		{/if}
 	</p>
 </center>
@@ -102,7 +112,9 @@
 				&nbsp;
 				{radio.name}
 				&nbsp;
-				<button type="button" onclick={() => play(radio)}>▶️</button>
+				{#if playing.url !== radio.url}
+					<button type="button" onclick={() => play(radio)}>▶️</button>
+				{/if}
 			</h4>
 		</li>
 	{/each}

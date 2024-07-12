@@ -61,6 +61,36 @@ export function createRadioStore() {
 		link.remove();
 	}
 
+	async function mport() {
+		const input = document.createElement('input');
+		input.type = 'file';
+		input.accept = '.json';
+		input.onchange = (e: Event) => {
+			const files = (e.target as HTMLInputElement).files;
+			const file = files?.length ? files[0] : null;
+			if (file) {
+				const reader = new FileReader();
+				reader.onload = (e: ProgressEvent<FileReader>) => {
+					try {
+						const list = JSON.parse(e.target?.result as string);
+						if (list.every((l: NewRadio) => l.name && l.url)) {
+							radios = list.map(({ id, name, url }: Radio) => ({
+								id: id || crypto.randomUUID(),
+								name,
+								url
+							}));
+						}
+					} catch {
+						alert('Please select a valid exported file');
+					}
+				};
+				reader.readAsText(file);
+			}
+			input.remove();
+		};
+		input.click();
+	}
+
 	return {
 		get radios() {
 			return radios;
@@ -68,6 +98,7 @@ export function createRadioStore() {
 		add,
 		update,
 		remove,
-		xport
+		xport,
+		mport
 	};
 }
