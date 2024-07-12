@@ -65,12 +65,20 @@
 	}
 
 	function handleAudio(node: HTMLAudioElement, url: string) {
-		if (url) node.play();
+		if (url) setupAudioHandlers(node);
 		return {
 			update(url: string) {
-				if (url) node.play();
+				if (url) setupAudioHandlers(node);
 			}
 		};
+	}
+
+	function setupAudioHandlers(node: HTMLAudioElement) {
+		node.addEventListener('playing', () => {
+			navigator.mediaSession.setActionHandler('previoustrack', () => shuffle());
+			navigator.mediaSession.setActionHandler('nexttrack', () => shuffle());
+		});
+		node.play();
 	}
 </script>
 
