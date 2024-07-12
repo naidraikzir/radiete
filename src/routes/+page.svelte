@@ -1,8 +1,10 @@
 <script lang="ts">
 	import { createRadioStore } from '$lib/stores/radio.svelte';
 	import type { Radio } from '$lib/types';
+	import { createMetadataClient, type MetadataClient } from '@radiolise/metadata-client';
 
 	const radioStore = createRadioStore();
+	let metadataClient = $state<MetadataClient>();
 
 	let modalRef: HTMLDialogElement;
 
@@ -17,7 +19,14 @@
 		name: '',
 		url: ''
 	});
+	let nowPlaying = $state('');
 	let error = $state('');
+
+	$effect(() => {
+		metadataClient = createMetadataClient({
+			url: 'wss://backend.radiolise.com/api/data-service'
+		});
+	});
 
 	function edit(radio: Radio) {
 		const { id, ...rest } = radio;
@@ -73,11 +82,24 @@
 		};
 	}
 
-	function setupAudioHandlers(node: HTMLAudioElement) {
-		node.addEventListener('playing', () => {
+	async function setupAudioHandlers(node: HTMLAudioElement) {
+		node.addEventListener('playing', async () => {
 			navigator.mediaSession.setActionHandler('previoustrack', () => shuffle());
 			navigator.mediaSession.setActionHandler('nexttrack', () => shuffle());
+			// console.log((node as unknown as HTMLCanvasElement).captureStream());
+
+			await metadataClient?.trackStream(playing.url);
+			metadataClient?.subscribe(({ title, error }) => {
+				if (!error) {
+					nowPlaying = title;
+					navigator.mediaSession.metadata = new MediaMetadata({
+						title: title.split(' - ')[1],
+						artist: title.split(' - ')[0]
+					});
+				}
+			});
 		});
+
 		node.play();
 	}
 </script>
@@ -85,8 +107,10 @@
 <center>
 	{#if !!playing.url}
 		<h3>{playing.name}</h3>
+		<h4>{nowPlaying}</h4>
 		<div>
 			<audio
+				crossorigin="anonymous"
 				controls={!!playing.url}
 				src={playing.url}
 				onerror={(e) => (error = (e?.target as HTMLAudioElement)?.error?.message as string)}
