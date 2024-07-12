@@ -51,6 +51,7 @@
 	function closeModal() {
 		modalRef.close();
 		form = { ...initialForm };
+		editId = '';
 	}
 
 	function play(radio: Radio) {
@@ -86,6 +87,9 @@
 
 	<p>
 		<button onclick={() => modalRef.showModal()}>Add Station</button>
+		{#if radioStore.radios.length > 0}
+			<button onclick={() => radioStore.xport()}>Export</button>
+		{/if}
 	</p>
 </center>
 

@@ -31,12 +31,43 @@ export function createRadioStore() {
 		radios = radios.filter((r) => r.id !== radio.id);
 	}
 
+	function xport() {
+		const now = new Date();
+		const filename = [
+			'radios',
+			`${now.getFullYear()}`,
+			`${now.getMonth() + 1}`,
+			`${now.getDate()}`,
+			`${now.getHours()}`,
+			`${now.getMinutes()}`,
+			`${now.getSeconds()}`
+		]
+			.join('_')
+			.concat('.json');
+		const blob = new Blob([JSON.stringify(radios)], { type: 'text/json' });
+		const link = document.createElement('a');
+
+		link.download = filename;
+		link.href = window.URL.createObjectURL(blob);
+		link.dataset.downloadurl = ['text/json', link.download, link.href].join(':');
+
+		const evt = new MouseEvent('click', {
+			view: window,
+			bubbles: true,
+			cancelable: true
+		});
+
+		link.dispatchEvent(evt);
+		link.remove();
+	}
+
 	return {
 		get radios() {
 			return radios;
 		},
 		add,
 		update,
-		remove
+		remove,
+		xport
 	};
 }
