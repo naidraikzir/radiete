@@ -1,9 +1,8 @@
 <script lang="ts">
 	import { metadataStore } from '$lib/stores/metadata.svelte';
-	import { createRadioStore } from '$lib/stores/radio.svelte';
+	import { radioStore } from '$lib/stores/radio.svelte';
 	import type { Radio } from '$lib/types';
 
-	const radioStore = createRadioStore();
 	let modalRef: HTMLDialogElement;
 
 	const initialForm = {
@@ -21,11 +20,15 @@
 	let error = $state('');
 
 	$effect(() => {
-		metadataStore?.subscribe((title: string) => {
-			navigator.mediaSession.metadata = new MediaMetadata({
-				title: title.split(' - ')[1],
-				artist: title.split(' - ')[0]
-			});
+		if (playing.url) {
+			metadataStore?.subscribe();
+		}
+	});
+
+	$effect(() => {
+		navigator.mediaSession.metadata = new MediaMetadata({
+			title: metadataStore.nowPlaying.split(' - ')[1],
+			artist: metadataStore.nowPlaying.split(' - ')[0]
 		});
 	});
 

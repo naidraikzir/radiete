@@ -1,4 +1,9 @@
-import { createMetadataClient, type MetadataClient } from '@radiolise/metadata-client';
+import { wait } from '$lib/utils';
+import {
+	createMetadataClient,
+	type MetadataClient,
+	type NowPlayingInfo
+} from '@radiolise/metadata-client';
 
 function createMetadataStore() {
 	let metadataClient = $state<MetadataClient>();
@@ -16,17 +21,21 @@ function createMetadataStore() {
 		};
 	});
 
-	function trackStream(url: string) {
-		metadataClient?.trackStream(url);
+	async function trackStream(url: string) {
+		metadataClient?.trackStream('');
+		await wait(2000);
+		nowPlaying = '';
+		await metadataClient?.trackStream(url);
 	}
 
-	function subscribe(callback: (title: string) => void) {
-		return metadataClient?.subscribe(({ title, error }) => {
-			if (!error) {
-				nowPlaying = title;
-				callback(title);
-			}
-		});
+	function subscribe() {
+		return metadataClient?.subscribe(setMetadata);
+	}
+
+	function setMetadata({ title, error }: NowPlayingInfo) {
+		if (!error) {
+			nowPlaying = title;
+		}
 	}
 
 	return {

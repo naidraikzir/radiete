@@ -11,8 +11,14 @@ export function createRadioStore() {
 		if (stored) radios = JSON.parse(stored);
 	}
 
-	$effect(() => {
-		localStorage.setItem(KEY, JSON.stringify(radios));
+	const cleanup = $effect.root(() => {
+		$effect(() => {
+			localStorage.setItem(KEY, JSON.stringify(radios));
+		});
+
+		return () => {
+			cleanup();
+		};
 	});
 
 	function add(radio: NewRadio) {
@@ -102,3 +108,5 @@ export function createRadioStore() {
 		mport
 	};
 }
+
+export const radioStore = createRadioStore();
