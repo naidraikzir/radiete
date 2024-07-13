@@ -1,4 +1,6 @@
 <script lang="ts">
+	import Github from '$lib/components/github.svelte';
+
 	let { children } = $props();
 
 	$effect(() => {
@@ -19,5 +21,11 @@
 		});
 	}
 </script>
+
+<div>
+	<a href="https://github.com/naidraikzir/radiete">
+		<Github />
+	</a>
+</div>
 
 {@render children()}

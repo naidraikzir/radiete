@@ -101,6 +101,10 @@
 	}
 </script>
 
+<svelte:head>
+	<title>{metadataStore.nowPlaying || playing.name || 'Radiete'}</title>
+</svelte:head>
+
 <center>
 	{#if !!playing.url}
 		<h3>{playing.name}</h3>
