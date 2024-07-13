@@ -1,11 +1,9 @@
 <script lang="ts">
+	import { metadataStore } from '$lib/stores/metadata.svelte';
 	import { createRadioStore } from '$lib/stores/radio.svelte';
 	import type { Radio } from '$lib/types';
-	import { createMetadataClient, type MetadataClient } from '@radiolise/metadata-client';
 
 	const radioStore = createRadioStore();
-	let metadataClient = $state<MetadataClient>();
-
 	let modalRef: HTMLDialogElement;
 
 	const initialForm = {
@@ -16,15 +14,18 @@
 	let editId = $state('');
 
 	let playing = $state({
+		id: '',
 		name: '',
 		url: ''
 	});
-	let nowPlaying = $state('');
 	let error = $state('');
 
 	$effect(() => {
-		metadataClient = createMetadataClient({
-			url: 'wss://backend.radiolise.com/api/data-service'
+		metadataStore?.subscribe((title: string) => {
+			navigator.mediaSession.metadata = new MediaMetadata({
+				title: title.split(' - ')[1],
+				artist: title.split(' - ')[0]
+			});
 		});
 	});
 
@@ -66,11 +67,16 @@
 	function play(radio: Radio) {
 		error = '';
 		playing = radio;
+		metadataStore?.trackStream(playing.url);
 	}
 
 	function shuffle() {
-		const index = Math.floor(Math.random() * radioStore.radios.length);
-		play(radioStore.radios[index]);
+		const currentIndex = radioStore.radios.findIndex((r) => r.id === playing.id);
+		let nextIndex = currentIndex;
+		while (nextIndex === currentIndex) {
+			nextIndex = Math.floor(Math.random() * radioStore.radios.length);
+		}
+		play(radioStore.radios[nextIndex]);
 	}
 
 	function handleAudio(node: HTMLAudioElement, url: string) {
@@ -87,19 +93,7 @@
 			navigator.mediaSession.setActionHandler('previoustrack', () => shuffle());
 			navigator.mediaSession.setActionHandler('nexttrack', () => shuffle());
 			// console.log((node as unknown as HTMLCanvasElement).captureStream());
-
-			await metadataClient?.trackStream(playing.url);
-			metadataClient?.subscribe(({ title, error }) => {
-				if (!error) {
-					nowPlaying = title;
-					navigator.mediaSession.metadata = new MediaMetadata({
-						title: title.split(' - ')[1],
-						artist: title.split(' - ')[0]
-					});
-				}
-			});
 		});
-
 		node.play();
 	}
 </script>
@@ -107,7 +101,7 @@
 <center>
 	{#if !!playing.url}
 		<h3>{playing.name}</h3>
-		<h4>{nowPlaying}</h4>
+		<h4>{metadataStore.nowPlaying}</h4>
 		<div>
 			<audio
 				crossorigin="anonymous"
