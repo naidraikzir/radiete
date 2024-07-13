@@ -40,7 +40,7 @@ export function createRadioStore() {
 	function xport() {
 		const now = new Date();
 		const filename = [
-			'radios',
+			'radiete',
 			`${now.getFullYear()}`,
 			`${now.getMonth() + 1}`,
 			`${now.getDate()}`,
