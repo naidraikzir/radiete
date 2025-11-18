@@ -136,8 +136,10 @@
 	</p>
 </center>
 
-<ol>
-	{#each radioStore.radios as radio}
+<br />
+
+<ol style="max-width: 354px; margin: 0 auto;">
+	{#each radioStore.radios as radio (radio.id)}
 		<li>
 			<h4>
 				<button type="button" onclick={() => confirmDelete(radio)}>❌</button>
