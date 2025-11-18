@@ -32,6 +32,14 @@
 		});
 	});
 
+	$effect(() => {
+		const id = localStorage.getItem('playing');
+		const radio = radioStore.radios.find((radio) => radio.id === id);
+		if (radio) {
+			playing = radio;
+		}
+	});
+
 	function edit(radio: Radio) {
 		const { id, ...rest } = radio;
 		editId = id;
@@ -70,6 +78,7 @@
 	function play(radio: Radio) {
 		error = '';
 		playing = radio;
+		localStorage.setItem('playing', radio.id);
 		metadataStore?.trackStream(playing.url);
 	}
 
@@ -123,6 +132,8 @@
 		</div>
 	{/if}
 
+	<br />
+
 	<p>
 		<button onclick={() => modalRef.showModal()}>Add Station</button>
 		{#if radioStore.radios.length > 0}
@@ -135,8 +146,6 @@
 		{/if}
 	</p>
 </center>
-
-<br />
 
 <ol style="max-width: 354px; margin: 0 auto;">
 	{#each radioStore.radios as radio (radio.id)}
