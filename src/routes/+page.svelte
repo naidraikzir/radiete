@@ -4,6 +4,9 @@
 	import type { Radio } from '$lib/types';
 
 	let modalRef: HTMLDialogElement;
+	let showVolumeSlider = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
+	let volume = $state(1);
+	let audioRef: HTMLAudioElement | null = $state(null);
 
 	const initialForm = {
 		url: '',
@@ -37,6 +40,12 @@
 		const radio = radioStore.radios.find((radio) => radio.id === id);
 		if (radio) {
 			playing = radio;
+		}
+	});
+
+	$effect(() => {
+		if (audioRef) {
+			audioRef.volume = volume;
 		}
 	});
 
@@ -117,7 +126,6 @@
 <center>
 	{#if !!playing.url}
 		<h3>{playing.name}</h3>
-		<h4>{metadataStore.nowPlaying}</h4>
 		<div>
 			<audio
 				crossorigin="anonymous"
@@ -125,14 +133,19 @@
 				src={playing.url}
 				onerror={(e) => (error = (e?.target as HTMLAudioElement)?.error?.message as string)}
 				use:handleAudio={playing.url}
+				bind:this={audioRef}
 			></audio>
+			{#if showVolumeSlider}
+				<div>
+					<input type="range" min="0" max="1" step="0.01" bind:value={volume} />
+				</div>
+			{/if}
 		</div>
+		<h4>&nbsp;{metadataStore.nowPlaying}&nbsp;</h4>
 		<div style="color: red;">
 			<small>{error}</small>
 		</div>
 	{/if}
-
-	<br />
 
 	<p>
 		<button onclick={() => modalRef.showModal()}>Add Station</button>
