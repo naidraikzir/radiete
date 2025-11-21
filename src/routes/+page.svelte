@@ -5,7 +5,7 @@
 
 	let modalRef: HTMLDialogElement;
 	let showVolumeSlider = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
-	let volume = $state(1);
+	let volume = $state(Number(localStorage.getItem('volume')) || 1);
 	let audioRef: HTMLAudioElement | null = $state(null);
 
 	const initialForm = {
@@ -15,11 +15,14 @@
 	let form = $state({ ...initialForm });
 	let editId = $state('');
 
-	let playing = $state({
-		id: '',
-		name: '',
-		url: ''
-	});
+	const localStoragePlayingId = localStorage.getItem('playing');
+	let playing = $state(
+		radioStore.radios.find((radio) => radio.id === localStoragePlayingId) || {
+			id: '',
+			name: '',
+			url: ''
+		}
+	);
 	let error = $state('');
 
 	$effect(() => {
@@ -33,14 +36,6 @@
 			title: metadataStore.nowPlaying.split(' - ')[1],
 			artist: metadataStore.nowPlaying.split(' - ')[0]
 		});
-	});
-
-	$effect(() => {
-		const id = localStorage.getItem('playing');
-		const radio = radioStore.radios.find((radio) => radio.id === id);
-		if (radio) {
-			playing = radio;
-		}
 	});
 
 	$effect(() => {
@@ -89,6 +84,15 @@
 		playing = radio;
 		localStorage.setItem('playing', radio.id);
 		metadataStore?.trackStream(playing.url);
+		setTimeout(() => {
+			if (audioRef) {
+				try {
+					audioRef.play();
+				} catch (error) {
+					console.error(error);
+				}
+			}
+		}, 1);
 	}
 
 	function shuffle() {
@@ -115,7 +119,6 @@
 			navigator.mediaSession.setActionHandler('nexttrack', () => shuffle());
 			// console.log((node as unknown as HTMLCanvasElement).captureStream());
 		});
-		node.play();
 	}
 </script>
 
@@ -131,9 +134,10 @@
 				crossorigin="anonymous"
 				controls={!!playing.url}
 				src={playing.url}
-				onerror={(e) => (error = (e?.target as HTMLAudioElement)?.error?.message as string)}
 				use:handleAudio={playing.url}
 				bind:this={audioRef}
+				onerror={(e) => (error = (e?.target as HTMLAudioElement)?.error?.message as string)}
+				onvolumechange={(e) => localStorage.setItem('volume', e.currentTarget.volume.toString())}
 			></audio>
 			{#if showVolumeSlider}
 				<div>
