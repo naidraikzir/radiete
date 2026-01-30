@@ -4,7 +4,6 @@
 	import type { Radio } from '$lib/types';
 
 	let modalRef: HTMLDialogElement;
-	let showVolumeSlider = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
 	let volume = $state(Number(localStorage.getItem('volume')) || 1);
 	let audioRef: HTMLAudioElement | null = $state(null);
 
@@ -139,11 +138,9 @@
 				onerror={(e) => (error = (e?.target as HTMLAudioElement)?.error?.message as string)}
 				onvolumechange={(e) => localStorage.setItem('volume', e.currentTarget.volume.toString())}
 			></audio>
-			{#if showVolumeSlider}
-				<div>
-					<input type="range" min="0" max="1" step="0.01" bind:value={volume} />
-				</div>
-			{/if}
+			<div>
+				<input type="range" min="0" max="1" step="0.01" bind:value={volume} />
+			</div>
 		</div>
 		<h4>&nbsp;{metadataStore.nowPlaying}&nbsp;</h4>
 		<div style="color: red;">
