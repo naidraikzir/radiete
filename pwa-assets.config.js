@@ -6,13 +6,13 @@ export default defineConfig({
 		apple: {
 			...preset.apple,
 			resizeOptions: {
-				background: 'transparent'
+				background: '#000'
 			}
 		},
 		maskable: {
 			...preset.maskable,
 			resizeOptions: {
-				background: 'transparent'
+				background: '#000'
 			}
 		}
 	},
