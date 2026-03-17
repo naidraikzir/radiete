@@ -3,7 +3,7 @@
 	import { radioStore } from '$lib/stores/radio.svelte';
 	import type { Radio } from '$lib/types';
 
-	let modalRef: HTMLDialogElement;
+	let modalRef: HTMLDialogElement | null = null;
 	let volume = $state(Number(localStorage.getItem('volume')) || 1);
 	let audioRef: HTMLAudioElement | null = $state(null);
 
@@ -47,7 +47,7 @@
 		const { id, ...rest } = radio;
 		editId = id;
 		form = rest;
-		modalRef.showModal();
+		modalRef?.showModal();
 	}
 
 	function onSubmit(e: SubmitEvent) {
@@ -63,7 +63,7 @@
 		}
 		form = { ...initialForm };
 		(document.activeElement as HTMLElement).blur();
-		modalRef.close();
+		modalRef?.close();
 	}
 
 	function confirmDelete(radio: Radio) {
@@ -73,7 +73,7 @@
 	}
 
 	function closeModal() {
-		modalRef.close();
+		modalRef?.close();
 		form = { ...initialForm };
 		editId = '';
 	}
@@ -149,7 +149,7 @@
 	{/if}
 
 	<p>
-		<button onclick={() => modalRef.showModal()}>Add Station</button>
+		<button onclick={() => modalRef?.showModal()}>Add Station</button>
 		{#if radioStore.radios.length > 0}
 			<button onclick={() => radioStore.xport()}>Export</button>
 			<button onclick={() => shuffle()}>🔀</button>
