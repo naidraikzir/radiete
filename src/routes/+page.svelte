@@ -156,7 +156,7 @@
 		{/if}
 
 		{#if !radioStore.radios.length}
-			<button onclick={() => radioStore.mport()}>Import</button>
+			<button onclick={() => radioStore.mport()} title="Import a playlist from an M3U file">Import</button>
 		{/if}
 	</p>
 </center>
